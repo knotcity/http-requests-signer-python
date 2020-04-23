@@ -2,6 +2,23 @@ import re
 
 nlreg = re.compile("\r?\n|\r")
 
+PK_ALG = ['rsa', 'dsa', 'ecdsa']
+HASH_ALG = ['sha256', 'sha512']
+
+def validateAlgorithm(algorithm: str):
+    alg = str.lower(algorithm).split('-')
+
+    if len(alg) != 2:
+        raise ValueError(algorithm + ' is not a valid algorithm')
+
+    if not alg[0] in PK_ALG:
+        raise ValueError(alg[0] + ' keys are not supported')
+
+    if not alg[1] in HASH_ALG:
+        raise ValueError(alg[1] + ' hash are not supported')
+
+    return alg[0], alg[1]
+
 def normalizeData(header_values: dict, method: str, path: str, headers: list):
     """ 
     Normalize data before being used in the signature process

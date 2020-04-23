@@ -3,6 +3,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa, ec
 from cryptography.hazmat.primitives.hashes import SHA256, SHA512
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+from cryptography.exceptions import InvalidSignature
+
 import base64
 
 def verify(data: str, sig: str, publicKey: str, hash: str, algorithm: str):
@@ -18,7 +20,11 @@ def verify(data: str, sig: str, publicKey: str, hash: str, algorithm: str):
     
     signature = base64.b64decode(sig)
 
-    if algorithm == 'ecdsa':
-        key.verify(signature, data.encode(), ec.ECDSA(algorithm=hasher))
-    else:
-        key.verify(signature, data.encode(), PKCS1v15(), hasher)
+    try:
+        if algorithm == 'ecdsa':
+            key.verify(signature, data.encode(), ec.ECDSA(algorithm=hasher))
+        else:
+            key.verify(signature, data.encode(), PKCS1v15(), hasher)
+    except(InvalidSignature):
+        return False
+    return True
