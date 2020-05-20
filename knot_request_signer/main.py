@@ -6,7 +6,8 @@ from verifier import verify
 from kparser import parseAuthorizationHeader
 from functools import wraps
 
-def generateAuthorization(header_values: dict, method: str, path: str, headers: list, keyId: str, privateKey: str, hash: str, algorihtm: str):
+
+def generateAuthorization(header_values: dict, method: str, path: str, headers: list, keyId: str, privateKey: str, hash: str, algorithm: str, hide_algorithm: bool = True):
     """ 
     Generate Authorization
 
@@ -20,7 +21,8 @@ def generateAuthorization(header_values: dict, method: str, path: str, headers: 
     keyId (str): The key identifier  
     privateKey (str): The private key value linked to the keyId  
     hash (str): The hash algorithm to use (sha256 or sha512)  
-    algorithm (str): The cryptographic algorihtm to use (rsa, dsa or ecdsa)  
+    algorithm (str): The cryptographic algorithm to use (rsa, dsa or ecdsa)  
+    hide_algorithm (bool): When true the used algorithm won't be in the generated header, 'hs2019' will be used instead and the server will choose the algorithm according the the keyId  
 
     Returns: 
     str: Value of the Authorization header 
@@ -28,11 +30,11 @@ def generateAuthorization(header_values: dict, method: str, path: str, headers: 
     """
     normalized = normalizeData(header_values, method, path, headers)
     stringified = stringifyNormalizedData(normalized)
-    signature = sign(stringified, privateKey, hash, algorihtm)
-    return 'Signature keyId="' + keyId + '",algorithm="' + algorihtm + '-' + hash + '",headers="' + ' '.join([str.lower(h) for h in headers]) + '",signature="' + signature + '"'
+    signature = sign(stringified, privateKey, hash, algorithm)
+    return 'Signature keyId="' + keyId + '",algorithm="' + ('hs2019' if hide_algorithm else (algorithm + '-' + hash)) + '",headers="' + ' '.join([str.lower(h) for h in headers]) + '",signature="' + signature + '"'
 
 
-def verifyAuthorization(header_values: dict, method: str, path: str, headers: list, keyId: str, publicKey: str, hash: str, algorihtm: str, signature: str):
+def verifyAuthorization(header_values: dict, method: str, path: str, headers: list, keyId: str, publicKey: str, hash: str, algorithm: str, signature: str):
     """ 
     Verify Authorization
 
@@ -47,7 +49,7 @@ def verifyAuthorization(header_values: dict, method: str, path: str, headers: li
     keyId (str): The key identifier  
     publicKey (str): The public key value linked to the keyId  
     hash (str): The hash algorithm to use (sha256 or sha512)  
-    algorithm (str): The cryptographic algorihtm to use (rsa, dsa or ecdsa)  
+    algorithm (str): The cryptographic algorithm to use (rsa, dsa or ecdsa)  
     signature (str): The signature given in the header
 
     Returns: 
@@ -56,4 +58,4 @@ def verifyAuthorization(header_values: dict, method: str, path: str, headers: li
     """
     normalized = normalizeData(header_values, method, path, headers)
     stringified = stringifyNormalizedData(normalized)
-    return verify(stringified, signature, publicKey, hash, algorihtm)
+    return verify(stringified, signature, publicKey, hash, algorithm)

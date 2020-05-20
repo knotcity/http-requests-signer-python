@@ -11,6 +11,11 @@ def parseAuthorizationHeader(auth: str):
     auth (str): The authorization header value
 
     Returns: 
+    keyId (str): Key identifier  
+    headers (list(str)): list of header used for the signature  
+    hash (str|None): Hash algorithm used for the signature, or None if the server should determine it by itself  
+    algorithm (str|None): Algorithm used for the signature, or None if the server should determine it by itself
+    signature (str): Value of the signature  
 
     """
     try:

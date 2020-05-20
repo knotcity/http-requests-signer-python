@@ -6,6 +6,10 @@ PK_ALG = ['rsa', 'dsa', 'ecdsa']
 HASH_ALG = ['sha256', 'sha512']
 
 def validateAlgorithm(algorithm: str):
+
+    if algorithm == 'hs2019':
+        return None, None
+
     alg = str.lower(algorithm).split('-')
 
     if len(alg) != 2:
